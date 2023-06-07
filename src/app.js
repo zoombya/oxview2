@@ -1,5 +1,5 @@
 import {TrackballControls} from '../node_modules/three/examples/jsm/controls/TrackballControls.js';
-// import {Settings} from './utils/settings.js';
+import {oxDocument} from './utils/document.js';
 
 class App{
     constructor(){
@@ -22,6 +22,8 @@ class App{
         
         //add a light   
         this.light = new THREE.PointLight(0xffffff, 1);
+        //this.light = new THREE.DirectionalLight(0xffffff, 1);
+        this.light.lookAt(0,0,0);
         this.light.position.copy(this.camera.position);
         this.scene.add(this.light);
 
@@ -44,14 +46,11 @@ class App{
             this.render();
         });
 
-        // //load settings
-        // this.settings = new Settings();
-        // //this.settings.clear();
-        // this.settings.apply();
-
         //populate scene with random demo stuff
-        //this.addSphere(2000000*4); #stress test
-        this.addSphere(2000);
+        this.documents = [
+            new oxDocument()
+        ];
+
         //render once
         this.render();
         
@@ -68,30 +67,6 @@ class App{
         this.light.position.copy(this.camera.position);
         requestAnimationFrame(this.animate);
         this.controls.update();
-    }
-
-
-    addSphere(count = 100){
-        //add a ton of spheres to simulate a particle system
-        const geometry = new THREE.SphereGeometry(.1,8,8);
-        const material = new THREE.MeshLambertMaterial({side: THREE.DoubleSide});
-        const spheres = new THREE.InstancedMesh(geometry, material, count);
-        
-        //set a random position within a box of 10x10x10
-        //for each instance
-        const dummy = new THREE.Object3D();
-        for(let i = 0; i<count; i++){
-            dummy.position.set(
-                Math.random()*20-10,
-                Math.random()*20-10,
-                Math.random()*20-10
-            );
-            dummy.updateMatrix();
-            spheres.setMatrixAt(i, dummy.matrix);
-            spheres.setColorAt(i, new THREE.Color(Math.random(), Math.random(), Math.random()));
-        }
-        this.scene.add(spheres);
-        return spheres;
     }
 
 }
