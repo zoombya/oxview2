@@ -19,27 +19,28 @@ class oxDocument extends THREE.Group{
     constructor(){
         super();
         this.app = new App();
-        this.loadConf('./demo/init.top','./demo/relaxed.dat');
+        //this.loadConf('./demo/init.top','./demo/relaxed.dat');
+        this.loadConf('./demo/tetDimer.top','./demo/tetDimer.dat');
         //this.add(this.addSpheres(2000));
         this.app.scene.add(this);
     }
 
     loadConf(top_path,dat_path){
-        // const textureLoader = new THREE.TextureLoader()
-        // const matcap = textureLoader.load('./matcaps/03.jpg', (texture)=>{
-        //     // after loading texture, always render once
-        //     this.app.render();
-        // })
-        // matcap.minFilter = THREE.NearestFilter
-        // matcap.magFilter = THREE.NearestFilter
-        // matcap.generateMipmaps = false
-        // const material = new THREE.MeshMatcapMaterial({
-        //     matcap:matcap
-        // });
+        const textureLoader = new THREE.TextureLoader()
+        const matcap = textureLoader.load('./matcaps/03.jpg', (texture)=>{
+            // after loading texture, always render once
+            this.app.render();
+        })
+        matcap.minFilter = THREE.NearestFilter
+        matcap.magFilter = THREE.NearestFilter
+        matcap.generateMipmaps = false
+        const material = new THREE.MeshMatcapMaterial({
+            matcap:matcap
+        });
 
-        // material.depthTest = true
-        // material.depthWrite = true
-        const material = new THREE.MeshPhongMaterial();
+        material.depthTest = true
+        material.depthWrite = true
+        //const material = new THREE.MeshPhongMaterial();
 
         // load the configuration file
         // create a web worker to parse the configuration file
@@ -51,7 +52,8 @@ class oxDocument extends THREE.Group{
             const startTime = performance.now();
             const { coordinates } = event.data;
             // const geometry = new THREE.SphereGeometry(.3, 10, 10);
-            const geometry = new THREE.SphereGeometry(.2,10,10);
+            //const geometry = new THREE.SphereGeometry(.2,10,10);
+            const geometry = new THREE.SphereGeometry(.4,10,10);
             const spheres = new THREE.InstancedMesh(geometry, material, coordinates.length);
             const dummy = new THREE.Object3D();
     

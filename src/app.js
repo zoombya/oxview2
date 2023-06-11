@@ -56,17 +56,19 @@ class App{
 
         //set the quality mode to low
         this.n8aopass.setQualityMode("Low");
+        //this.n8aopass.configuration.renderMode = 1;
+
         this.composer = new EffectComposer(this.renderer);
         /* Only difference is that N8AOPostPass requires a RenderPass before it, 
             whereas N8AOPass replaces the render pass. Everything else is identical. */
         this.composer.addPass(new RenderPass(this.scene, this.camera));
         this.composer.addPass(this.n8aopass);
-        this.composer.addPass(new EffectPass(this.camera, new SMAAEffect(SMAAPreset.LOW)));
+        this.composer.addPass(new EffectPass(this.camera, new SMAAEffect(SMAAPreset.ULTRA)));
         
         //add a light
-        this.light = new THREE.PointLight(0xffffff, 1);
-        this.light.position.copy(this.camera.position);
-        this.scene.add(this.light);
+        // this.light = new THREE.PointLight(0xffffff, 1);
+        // this.light.position.copy(this.camera.position);
+        //this.scene.add(this.light);
 
 
         //bind render function to this
@@ -78,12 +80,15 @@ class App{
         this.controls = new TrackballControls(this.camera, this.renderer.domElement);
         this.controls.addEventListener('change', ()=>{
             //make the light follow the camera
-            this.light.position.copy(this.camera.position);
+            //this.light.position.copy(this.camera.position);
             this.render();
         });
-        this.controls.rotateSpeed = 1.5;
-        this.controls.zoomSpeed = 2; //frequently structures are large so turned this up
-        this.controls.panSpeed = 1.5;
+
+        // interestingly oxviews 1.0 parameters are smaller than these
+        // not sure why , but these feel better
+        this.controls.rotateSpeed = 4.5;
+        this.controls.zoomSpeed = 3; 
+        this.controls.panSpeed = 2.0;
         this.controls.noZoom = false;
         this.controls.noPan = false;
         this.controls.staticMoving = true;
