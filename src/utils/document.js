@@ -13,7 +13,9 @@ class oxDocument extends THREE.Group{
         this.app = new App();
         //this.loadConf('./demo/init.top','./demo/relaxed.dat');
         //this.loadConf("./demo/snubCube.top", "./demo/snubCube.dat");
-        this.loadConf('./demo/tetDimer.top','./demo/tetDimer.dat');
+        //this.loadConf('./demo/tetDimer.top','./demo/tetDimer.dat');
+        this.loadConf('./demo/square.top','./demo/square.dat');
+
         //this.add(this.addSpheres(2000));
         this.app.scene.add(this);
     }
@@ -55,21 +57,12 @@ class oxDocument extends THREE.Group{
             const nucSpheres = new THREE.InstancedMesh(nucGeometry, material, coordinates.length);
             
             const conGeometry = new THREE.CylinderGeometry(.1,.1, 0.8147053, 8);
-            //0.8147053
-            //conGeometry.scale(1, 0.8147053, 1);
             const conCylinders = new THREE.InstancedMesh(conGeometry, material, coordinates.length);
 
-            const bbconGeometry = new THREE.CylinderGeometry(0.1, 0.1, 1, 8);
+            const bbconGeometry = new THREE.CylinderGeometry(0.13, 0.05, 1, 8);
             const bbCylinders = new THREE.InstancedMesh(bbconGeometry, material, coordinates.length);
 
-            //nucSpheres.scale.set(0.3, 0.7, 0.7);
-            
-            // var instancedConnector = new THREE.InstancedBufferGeometry();
-            // instancedConnector.copy(new THREE.CylinderBufferGeometry(.1,.1,1, 8) as unknown as THREE.InstancedBufferGeometry);
-
-            // var instancedBBconnector = new THREE.InstancedBufferGeometry();
-            // instancedBBconnector.copy(new THREE.CylinderBufferGeometry(.1,.02,1, 8) as unknown as THREE.InstancedBufferGeometry);
-
+        
             const dummy = new THREE.Object3D();
             const bbdummy = new THREE.Object3D();
             // save dummy's default rotation
@@ -121,17 +114,7 @@ class oxDocument extends THREE.Group{
                     nucSpheres.setColorAt(i, nucleosideColors[cid]);
                 }  
 
-                // dummy.quaternion.copy(dummy_rot);
-                // dummy.rotation.x = -Math.PI/2;
-                // dummy.position.copy(ns);
-                // dummy.lookAt(bbPosition);
-                // dummy.updateMatrix();    
-                // conCylinders.setMatrixAt(i, dummy.matrix);
-                // conCylinders.setColorAt(i, oxStrandColors[strand_ids[i]%4]);
-
-
-
-
+        
                 // compute connector position
                 const con = bbPosition.clone().add(ns).divideScalar(2);
                 // compute connector rotation

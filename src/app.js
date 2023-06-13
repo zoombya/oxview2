@@ -28,7 +28,9 @@ class App{
         // this.scene.environmentMap = environment;
 
 
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight,0.1,1000);
+        this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight,0.1,1000);
+        this.camera.position.set(100,0,0);
+
         this.renderer = new THREE.WebGLRenderer ({
             canvas: document.querySelector('#canvas'),
             powerPreference: "high-performance",
@@ -43,7 +45,7 @@ class App{
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.VSMShadowMap;
 
-        this.camera.position.setZ(30);
+        //this.camera.position.setZ(30);
 
         //add a render pass 
         // N8AOPass replaces RenderPass
