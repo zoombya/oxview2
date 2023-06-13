@@ -2,8 +2,8 @@ import {TrackballControls} from '../node_modules/three/examples/jsm/controls/Tra
 import {oxDocument} from './utils/document.js';
 import {N8AOPostPass} from "n8ao";
 import { EffectComposer, RenderPass, SMAAEffect, EffectPass } from "postprocessing";
-import {SMAAPreset} from 'postprocessing';
-
+import {SMAAPreset, OutlineEffect} from 'postprocessing';
+import {AxisArrows} from './utils/axisArraows.js';
 class App{
     constructor(){
         //app is a singleton
@@ -56,6 +56,7 @@ class App{
 
         //set the quality mode to low
         this.n8aopass.setQualityMode("Low");
+        this.n8aopass.configuration.intensity = 5;
         //this.n8aopass.configuration.renderMode = 1;
 
         this.composer = new EffectComposer(this.renderer);
@@ -63,8 +64,7 @@ class App{
             whereas N8AOPass replaces the render pass. Everything else is identical. */
         this.composer.addPass(new RenderPass(this.scene, this.camera));
         this.composer.addPass(this.n8aopass);
-        this.composer.addPass(new EffectPass(this.camera, new SMAAEffect(SMAAPreset.ULTRA)));
-        
+        this.composer.addPass(new EffectPass(this.camera, new SMAAEffect(SMAAPreset.HIGH)));
         //add a light
         // this.light = new THREE.PointLight(0xffffff, 1);
         // this.light.position.copy(this.camera.position);
@@ -108,6 +108,9 @@ class App{
         this.documents = [
             new oxDocument()
         ];
+
+        //add axes helper
+        this.scene.add(new AxisArrows());
 
         //render once
         this.render();

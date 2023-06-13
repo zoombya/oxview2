@@ -12,6 +12,7 @@ class oxDocument extends THREE.Group{
         super();
         this.app = new App();
         //this.loadConf('./demo/init.top','./demo/relaxed.dat');
+        //this.loadConf("./demo/snubCube.top", "./demo/snubCube.dat");
         this.loadConf('./demo/tetDimer.top','./demo/tetDimer.dat');
         //this.add(this.addSpheres(2000));
         this.app.scene.add(this);
@@ -19,7 +20,9 @@ class oxDocument extends THREE.Group{
 
     loadConf(top_path,dat_path){
         const textureLoader = new THREE.TextureLoader()
-        const matcap = textureLoader.load('./matcaps/03.jpg', (texture)=>{
+        //D0CCCB_524D50_928891_727581 on page 30
+        //https://github.com/nidorx/matcaps/blob/master/PAGE-30.md
+        const matcap = textureLoader.load('./matcaps/05.png', (texture)=>{
             // after loading texture, always render once
             this.app.render();
         })
@@ -32,6 +35,7 @@ class oxDocument extends THREE.Group{
 
         material.depthTest = true
         material.depthWrite = true
+        material.metalness = 5;
         //const material = new THREE.MeshPhongMaterial();
 
         // load the configuration file
@@ -50,6 +54,11 @@ class oxDocument extends THREE.Group{
             nucGeometry.scale(0.7, 0.3, 0.7)
             const nucSpheres = new THREE.InstancedMesh(nucGeometry, material, coordinates.length);
             
+            const conGeometry = new THREE.CylinderGeometry(.1,.1, 0.8147053, 8);
+            //0.8147053
+            //conGeometry.scale(1, 0.8147053, 1);
+            const conCylinders = new THREE.InstancedMesh(conGeometry, material, coordinates.length);
+
             //nucSpheres.scale.set(0.3, 0.7, 0.7);
             
             // var instancedConnector = new THREE.InstancedBufferGeometry();
@@ -70,27 +79,30 @@ class oxDocument extends THREE.Group{
                 let a3 = new THREE.Vector3(a3x, a3y, a3z);
                 let a2 = a1.clone().cross(a3);
 
-                // compute nucleoside cm
-                let ns = new THREE.Vector3(
-                    p.x + 0.4 * a1.x,
-                    p.y + 0.4 * a1.y,
-                    p.z + 0.4 * a1.z
-                )
-                
-                //compute base rotation for the nucleoside
-                let nuc_rot = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0),a3)
-                
-                
-
+                // compute the backbone position
+                const bbPosition = new THREE.Vector3(
+                    p.x - (0.34 * a1.x + 0.3408 * a2.x),
+                    p.y - (0.34 * a1.y + 0.3408 * a2.y),
+                    p.z - (0.34 * a1.z + 0.3408 * a2.z)
+                );
                 //set the bbPosition and color
-                dummy.position.set(x, y, z);
+                dummy.position.copy(bbPosition);
                 dummy.updateMatrix();
                 bbSpheres.setMatrixAt(i, dummy.matrix);
                 // signature oxview stand colors
                 bbSpheres.setColorAt(i, oxStrandColors[strand_ids[i]%4]);
 
+                //compute nucleoside position
+                let ns = new THREE.Vector3(
+                    p.x + 0.4 * a1.x,
+                    p.y + 0.4 * a1.y,
+                    p.z + 0.4 * a1.z
+                )
+
+                //compute base rotation for the nucleoside
+                let nuc_rot = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0),a3)
                 //set the nucleoside position and color
-                dummy.position.set(ns.x, ns.y, ns.z);
+                dummy.position.copy(ns);
                 // apply the nucleoside rotation
                 dummy.quaternion.copy(nuc_rot);
                 dummy.updateMatrix();
@@ -101,15 +113,37 @@ class oxDocument extends THREE.Group{
                     nucSpheres.setColorAt(i, nucleosideColors[nucleosideColors.length-1]);
                 }else{
                     nucSpheres.setColorAt(i, nucleosideColors[cid]);
-                }
-                //reset dummy's rotation 
-                dummy.quaternion.copy(dummy_rot);
-                
+                }  
+
+                // dummy.quaternion.copy(dummy_rot);
+                // dummy.rotation.x = -Math.PI/2;
+                // dummy.position.copy(ns);
+                // dummy.lookAt(bbPosition);
+                // dummy.updateMatrix();    
+                // conCylinders.setMatrixAt(i, dummy.matrix);
+                // conCylinders.setColorAt(i, oxStrandColors[strand_ids[i]%4]);
+
+
+
+
+                //compute connector position
+                //const con = p.clone().add(ns).divideScalar(2);
+                // // compute connector rotation
+                // const rotationCon = new THREE.Quaternion().setFromUnitVectors(
+                //     new THREE.Vector3(0, 1, 0),
+                //     con.clone().sub(ns).normalize());
+
+                // dummy.position.copy(con);
+                // dummy.quaternion.copy(rotationCon);
+                // dummy.updateMatrix();
+                // conCylinders.setMatrixAt(i, dummy.matrix);
+                // conCylinders.setColorAt(i, oxStrandColors[strand_ids[i]%4]);
 
           }
           
             this.add(bbSpheres);
             this.add(nucSpheres);
+            this.add(conCylinders);
             this.app.render();
           };
 
@@ -167,6 +201,31 @@ class oxDocument extends THREE.Group{
     }
 
 }
+
+// const pointCylinder = (px,py)=>{
+//     var direction = new THREE.Vector3().subVectors(pointY, pointX);
+
+
+// }
+
+const cylinderMesh = function (pointX, pointY, r, material) {
+    // https://stackoverflow.com/questions/15316127/three-js-line-vector-to-cylinder
+    // edge from X to Y
+    var direction = new THREE.Vector3().subVectors(pointY, pointX);
+    // Make the geometry (of "direction" length)
+    var geometry = new THREE.CylinderGeometry(r, 0, direction.length(), 10, 4);
+    // shift it so one end rests on the origin
+    geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, direction.length() / 2, 0));
+    // rotate it the right way for lookAt to work
+    geometry.applyMatrix(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(90)));
+    // Make a mesh with the geometry
+    var mesh = new THREE.Mesh(geometry, material);
+    // Position it where we want
+    mesh.position.copy(pointX);
+    // And make it point to where we want
+    mesh.lookAt(pointY);
+    return mesh;
+ }
 
     // Default colors for the backbones
 const oxStrandColors = [
