@@ -40,7 +40,7 @@ class oxDocument extends THREE.Group{
 
         // load the configuration file
         // create a web worker to parse the configuration file
-        let particle_count, stand_count, strand_ids, nuc_ids;
+        let particle_count, stand_count, strand_ids, nuc_ids, isEnd;
         const pworker = new Worker('/src/utils/file_worker.js');
        
         pworker.onmessage = event => {
@@ -59,6 +59,9 @@ class oxDocument extends THREE.Group{
             //conGeometry.scale(1, 0.8147053, 1);
             const conCylinders = new THREE.InstancedMesh(conGeometry, material, coordinates.length);
 
+            const bbconGeometry = new THREE.CylinderGeometry(0.1, 0.1, 1, 8);
+            const bbCylinders = new THREE.InstancedMesh(bbconGeometry, material, coordinates.length);
+
             //nucSpheres.scale.set(0.3, 0.7, 0.7);
             
             // var instancedConnector = new THREE.InstancedBufferGeometry();
@@ -68,8 +71,11 @@ class oxDocument extends THREE.Group{
             // instancedBBconnector.copy(new THREE.CylinderBufferGeometry(.1,.02,1, 8) as unknown as THREE.InstancedBufferGeometry);
 
             const dummy = new THREE.Object3D();
+            const bbdummy = new THREE.Object3D();
             // save dummy's default rotation
             const dummy_rot = dummy.quaternion.clone();
+
+            let bbLast = new THREE.Vector3(0, 0, 0)
     
             for (let i = 0; i < coordinates.length; i++) {
                 const {x, y, z, a1x, a1y, a1z, a3x, a3y, a3z} = coordinates[i];//.split(' ').map(parseFloat);
@@ -139,11 +145,31 @@ class oxDocument extends THREE.Group{
                 conCylinders.setMatrixAt(i, dummy.matrix);
                 conCylinders.setColorAt(i, oxStrandColors[strand_ids[i]%4]);
 
+                // compute the backbone connector position
+                const bbCon = bbPosition.clone().add(bbLast).divideScalar(2);
+                const rotationBbCon = new THREE.Quaternion().setFromUnitVectors(
+                    new THREE.Vector3(0, 1, 0),
+                    bbPosition.clone().sub(bbLast).normalize()
+                );
+                if (isEnd[i] == 1) { bbdummy.scale.set(0, 0, 0); }
+                else { bbdummy.scale.set(1, bbPosition.clone().sub(bbLast).length(), 1); }
+                
+
+                bbdummy.position.copy(bbCon);
+                bbdummy.quaternion.copy(rotationBbCon);
+                
+                
+                bbdummy.updateMatrix()
+                bbCylinders.setMatrixAt(i, bbdummy.matrix);
+                bbCylinders.setColorAt(i, oxStrandColors[strand_ids[i]%4])
+
+                bbLast.copy(bbPosition)
           }
           
             this.add(bbSpheres);
             this.add(nucSpheres);
             this.add(conCylinders);
+            this.add(bbCylinders);
             this.app.render();
           };
 
@@ -157,11 +183,14 @@ class oxDocument extends THREE.Group{
             console.log(particle_count, stand_count);
             strand_ids = new Array(particle_count);
             nuc_ids = new Array(particle_count);
+            isEnd = new Array(particle_count) // not a huge fan of creating a whole array for this... 
 
             for(let i = 1; i<particle_count+1; i++){
                 const top_line = lines[i].split(' ')
                 strand_ids[i-1] = top_line[0];
                 nuc_ids[i-1] = top_line[1];
+                if (top_line[2] == '-1') {isEnd[i-1] = 1;}
+                else {isEnd[i-1] = 0;}
            }
            
 
