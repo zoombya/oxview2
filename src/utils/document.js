@@ -127,7 +127,7 @@ class oxDocument extends THREE.Group{
 
 
                 // compute connector position
-                const con = p.clone().add(ns).divideScalar(2);
+                const con = bbPosition.clone().add(ns).divideScalar(2);
                 // compute connector rotation
                 const rotationCon = new THREE.Quaternion().setFromUnitVectors(
                     new THREE.Vector3(0, 1, 0),
