@@ -126,18 +126,18 @@ class oxDocument extends THREE.Group{
 
 
 
-                //compute connector position
-                //const con = p.clone().add(ns).divideScalar(2);
-                // // compute connector rotation
-                // const rotationCon = new THREE.Quaternion().setFromUnitVectors(
-                //     new THREE.Vector3(0, 1, 0),
-                //     con.clone().sub(ns).normalize());
+                // compute connector position
+                const con = p.clone().add(ns).divideScalar(2);
+                // compute connector rotation
+                const rotationCon = new THREE.Quaternion().setFromUnitVectors(
+                    new THREE.Vector3(0, 1, 0),
+                    con.clone().sub(ns).normalize());
 
-                // dummy.position.copy(con);
-                // dummy.quaternion.copy(rotationCon);
-                // dummy.updateMatrix();
-                // conCylinders.setMatrixAt(i, dummy.matrix);
-                // conCylinders.setColorAt(i, oxStrandColors[strand_ids[i]%4]);
+                dummy.position.copy(con);
+                dummy.quaternion.copy(rotationCon);
+                dummy.updateMatrix();
+                conCylinders.setMatrixAt(i, dummy.matrix);
+                conCylinders.setColorAt(i, oxStrandColors[strand_ids[i]%4]);
 
           }
           
