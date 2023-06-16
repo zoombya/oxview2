@@ -38,7 +38,7 @@ class oxDocument extends THREE.Group{
 
         // load the configuration file
         // create a web worker to parse the configuration file
-        let particle_count, stand_count, strand_ids, nuc_ids, isEnd;
+        let particle_count, stand_count, strand_ids, nuc_ids;
         const pworker = new Worker('/src/utils/file_worker.js');
        
         pworker.onmessage = event => {
@@ -125,28 +125,28 @@ class oxDocument extends THREE.Group{
                 dummy.updateMatrix();
                 conCylinders.setMatrixAt(i, dummy.matrix);
                 conCylinders.setColorAt(i, oxStrandColors[strand_ids[i]%4]);
-
+                
+                
                 // compute the backbone connector position
-                const bbCon = bbPosition.clone().add(bbLast).divideScalar(2);
-                const rotationBbCon = new THREE.Quaternion().setFromUnitVectors(
-                    new THREE.Vector3(0, 1, 0),
-                    bbPosition.clone().sub(bbLast).normalize()
-                );
-                // modify the bb connector scale, depending on wherever it exists
                 // we want to detect 3' | so a we start it's a 3' and all follow ups will be for strand_ids i != i-1 
-                if(i ==0 || strand_ids[i] != strand_ids[i-1])
+                const bbCon = bbPosition.clone().add(bbLast).divideScalar(2);
+                if(i ==0 || strand_ids[i] != strand_ids[i-1]){
                     bbdummy.scale.set(0, 0, 0);
-                else
+                }
+                else{
+                    //do math as we only care for rotation if we are no 3'
+                    const rotationBbCon = new THREE.Quaternion().setFromUnitVectors(
+                            new THREE.Vector3(0, 1, 0),
+                            bbPosition.clone().sub(bbLast).normalize()
+                    );
+                    bbdummy.quaternion.copy(rotationBbCon);
                     bbdummy.scale.set(1, bbPosition.clone().sub(bbLast).length(), 1);
-
+                }
                 bbdummy.position.copy(bbCon);
-                bbdummy.quaternion.copy(rotationBbCon);
-                
-                
                 bbdummy.updateMatrix()
                 bbCylinders.setMatrixAt(i, bbdummy.matrix);
-                bbCylinders.setColorAt(i, oxStrandColors[strand_ids[i]%4])
-
+                bbCylinders.setColorAt(i, oxStrandColors[strand_ids[i]%4]);
+                // we can't really get rid of bbLast as we otherwise would need to fetch it from the dummy matrix
                 bbLast.copy(bbPosition)
           }
           
@@ -167,15 +167,11 @@ class oxDocument extends THREE.Group{
             console.log(particle_count, stand_count);
             strand_ids = new Array(particle_count);
             nuc_ids = new Array(particle_count);
-            isEnd = new Array(particle_count) // not a huge fan of creating a whole array for this... 
 
             for(let i = 1; i<particle_count+1; i++){
                 const top_line = lines[i].split(' ')
                 strand_ids[i-1] = top_line[0];
                 nuc_ids[i-1] = top_line[1];
-                //this should translate to marking only the 3' end of the strand
-                //if (top_line[2] == '-1') {isEnd[i-1] = 1;}
-                //else {isEnd[i-1] = 0;}
            }
            
             // send the configuration file to the worker
