@@ -57,7 +57,7 @@ class App{
             );
 
         //set the quality mode to low
-        this.n8aopass.setQualityMode("Low");
+        this.n8aopass.setQualityMode("High");
         this.n8aopass.configuration.intensity = 5;
         //this.n8aopass.configuration.renderMode = 1;
 

@@ -5,9 +5,6 @@ import * as THREE from '/node_modules/three/build/three.module.js';
 
 class oxDocument extends THREE.Group{
 
-
-    
-
     constructor(){
         super();
         this.app = new App();
@@ -15,7 +12,6 @@ class oxDocument extends THREE.Group{
         //this.loadConf("./demo/snubCube.top", "./demo/snubCube.dat");
         //this.loadConf('./demo/tetDimer.top','./demo/tetDimer.dat');
         this.loadConf('./demo/square.top','./demo/square.dat');
-
         //this.add(this.addSpheres(2000));
         this.app.scene.add(this);
     }
@@ -49,18 +45,20 @@ class oxDocument extends THREE.Group{
             console.log("got message from worker");
             const startTime = performance.now();
             const { coordinates } = event.data;
+
+           
             const bb_geometry = new THREE.SphereGeometry(.2,10,10);
-            const bbSpheres = new THREE.InstancedMesh(bb_geometry, material, coordinates.length);
+            const bbSpheres = new THREE.InstancedMesh(bb_geometry, material, particle_count);
             
             const nucGeometry = new THREE.SphereGeometry(.3,10,10);
             nucGeometry.scale(0.7, 0.3, 0.7)
-            const nucSpheres = new THREE.InstancedMesh(nucGeometry, material, coordinates.length);
+            const nucSpheres = new THREE.InstancedMesh(nucGeometry, material, particle_count);
             
             const conGeometry = new THREE.CylinderGeometry(.1,.1, 0.8147053, 8);
-            const conCylinders = new THREE.InstancedMesh(conGeometry, material, coordinates.length);
+            const conCylinders = new THREE.InstancedMesh(conGeometry, material, particle_count);
 
             const bbconGeometry = new THREE.CylinderGeometry(0.13, 0.05, 1, 8);
-            const bbCylinders = new THREE.InstancedMesh(bbconGeometry, material, coordinates.length);
+            const bbCylinders = new THREE.InstancedMesh(bbconGeometry, material, particle_count);
 
         
             const dummy = new THREE.Object3D();
@@ -70,7 +68,7 @@ class oxDocument extends THREE.Group{
 
             let bbLast = new THREE.Vector3(0, 0, 0)
     
-            for (let i = 0; i < coordinates.length; i++) {
+            for (let i = 0; i < particle_count; i++) {
                 const {x, y, z, a1x, a1y, a1z, a3x, a3y, a3z} = coordinates[i];//.split(' ').map(parseFloat);
               
                 let p = new THREE.Vector3(x, y, z);
@@ -134,9 +132,12 @@ class oxDocument extends THREE.Group{
                     new THREE.Vector3(0, 1, 0),
                     bbPosition.clone().sub(bbLast).normalize()
                 );
-                if (isEnd[i] == 1) { bbdummy.scale.set(0, 0, 0); }
-                else { bbdummy.scale.set(1, bbPosition.clone().sub(bbLast).length(), 1); }
-                
+                // modify the bb connector scale, depending on wherever it exists
+                // we want to detect 3' | so a we start it's a 3' and all follow ups will be for strand_ids i != i-1 
+                if(i ==0 || strand_ids[i] != strand_ids[i-1])
+                    bbdummy.scale.set(0, 0, 0);
+                else
+                    bbdummy.scale.set(1, bbPosition.clone().sub(bbLast).length(), 1);
 
                 bbdummy.position.copy(bbCon);
                 bbdummy.quaternion.copy(rotationBbCon);
@@ -172,13 +173,11 @@ class oxDocument extends THREE.Group{
                 const top_line = lines[i].split(' ')
                 strand_ids[i-1] = top_line[0];
                 nuc_ids[i-1] = top_line[1];
-                if (top_line[2] == '-1') {isEnd[i-1] = 1;}
-                else {isEnd[i-1] = 0;}
+                //this should translate to marking only the 3' end of the strand
+                //if (top_line[2] == '-1') {isEnd[i-1] = 1;}
+                //else {isEnd[i-1] = 0;}
            }
            
-
-
-
             // send the configuration file to the worker
             fetch(dat_path)
             .then(response => response.text())
@@ -211,35 +210,9 @@ class oxDocument extends THREE.Group{
         }
         return spheres;
     }
-
 }
 
-// const pointCylinder = (px,py)=>{
-//     var direction = new THREE.Vector3().subVectors(pointY, pointX);
-
-
-// }
-
-const cylinderMesh = function (pointX, pointY, r, material) {
-    // https://stackoverflow.com/questions/15316127/three-js-line-vector-to-cylinder
-    // edge from X to Y
-    var direction = new THREE.Vector3().subVectors(pointY, pointX);
-    // Make the geometry (of "direction" length)
-    var geometry = new THREE.CylinderGeometry(r, 0, direction.length(), 10, 4);
-    // shift it so one end rests on the origin
-    geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, direction.length() / 2, 0));
-    // rotate it the right way for lookAt to work
-    geometry.applyMatrix(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(90)));
-    // Make a mesh with the geometry
-    var mesh = new THREE.Mesh(geometry, material);
-    // Position it where we want
-    mesh.position.copy(pointX);
-    // And make it point to where we want
-    mesh.lookAt(pointY);
-    return mesh;
- }
-
-    // Default colors for the backbones
+// Default colors for the backbones
 const oxStrandColors = [
         new THREE.Color(0xfdd291), //light yellow
         
