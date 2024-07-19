@@ -4,6 +4,8 @@ import {N8AOPostPass} from "n8ao";
 import { EffectComposer, RenderPass, SMAAEffect, EffectPass } from "postprocessing";
 import {SMAAPreset, OutlineEffect} from 'postprocessing';
 import {AxisArrows} from './utils/axisArraows.js';
+import Stats from '../node_modules/stats-gl';
+
 class App{
     constructor(){
         //app is a singleton
@@ -15,6 +17,8 @@ class App{
         //set up scene, camera, and renderer
         this.scene  = new THREE.Scene();
         this.scene.background = new THREE.Color(0xFFFFFF);
+        this.raycaster = new THREE.Raycaster();
+        this.mouse = new THREE.Vector2(1,1);
 
         // const environment = new THREE.CubeTextureLoader().load([
         //     "skybox/Box_Right.bmp",
@@ -42,8 +46,19 @@ class App{
 
         this.renderer.setPixelRatio( window.devicePixelRatio);
         this.renderer.setSize( window.innerWidth, window.innerHeight);
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = THREE.VSMShadowMap;
+        // this.renderer.shadowMap.enabled = true;
+        // this.renderer.shadowMap.type = THREE.VSMShadowMap;
+
+
+        // stats
+		this.stats = new Stats( {
+			precision: 3,
+			horizontal: false
+		} );
+		this.stats.init( this.renderer );
+		document.body.appendChild( this.stats.dom );
+		this.stats.dom.style.position = 'absolute';
+        
 
         //this.camera.position.setZ(30);
 
@@ -66,7 +81,7 @@ class App{
             whereas N8AOPass replaces the render pass. Everything else is identical. */
         this.composer.addPass(new RenderPass(this.scene, this.camera));
         this.composer.addPass(this.n8aopass);
-        this.composer.addPass(new EffectPass(this.camera, new SMAAEffect(SMAAPreset.HIGH)));
+        this.composer.addPass(new EffectPass(this.camera, new SMAAEffect(SMAAPreset.LOW)));
         //add a light
         // this.light = new THREE.PointLight(0xffffff, 1);
         // this.light.position.copy(this.camera.position);
@@ -80,7 +95,7 @@ class App{
         
         //add controls
         this.controls = new TrackballControls(this.camera, this.renderer.domElement);
-        this.controls.addEventListener('change', ()=>{
+        this.controls.addEventListener('change', (event)=>{
             //make the light follow the camera
             //this.light.position.copy(this.camera.position);
             this.render();
@@ -94,8 +109,7 @@ class App{
         this.controls.noZoom = false;
         this.controls.noPan = false;
         this.controls.staticMoving = true;
-        this.controls.dynamicDampingFactor = 0.2;
-        this.controls.keys = [65, 83, 68];
+        this.controls.dynamicDampingFactor = 0.1;
 
         //fix window resize
         window.addEventListener('resize', ()=>{
@@ -104,6 +118,11 @@ class App{
             this.composer.setSize(window.innerWidth, window.innerHeight);
             this.renderer.setSize(window.innerWidth, window.innerHeight);
             this.render();
+        });
+
+        document.addEventListener('mousemove', (event)=>{
+            this.mouse.x = (event.clientX/window.innerWidth) * 2 - 1;
+            this.mouse.y = -(event.clientY/window.innerHeight) * 2 + 1;
         });
 
         //populate scene with random demo stuff
@@ -127,6 +146,31 @@ class App{
     }
 
     animate(){
+        
+        this.raycaster.setFromCamera( this.mouse, this.camera );
+        const intersection = this.raycaster.intersectObjects( this.scene.children, true );
+       
+
+        if ( intersection.length > 0 && intersection[ 0 ].object.isInstancedMesh ) {
+
+            const instanceId = intersection[ 0 ].instanceId;
+            console.log(instanceId);
+
+            const mesh = intersection[ 0 ].object;
+            console.log(mesh);
+            mesh.setColorAt( instanceId, new THREE.Color( 0xff00ff ) );
+            mesh.instanceColor.needsUpdate = true;
+            this.render();
+            //mesh.setColorAt( instanceId, new THREE.Color( 0xff0000 ) );
+            //mesh.getColorAt( instanceId, color );
+
+        }
+		//const intersection = this.raycaster.intersectObject( this.scene.children);
+        
+        // if ( intersection.length > 0 ) {
+        //     console.log(intersection[0].object);
+        // }
+
         //this.render();
         //this.documents[0].rotation.x += 0.001;
         //this.documents[0].rotation.y += 0.001;
@@ -135,6 +179,7 @@ class App{
         //this.light.position.copy(this.camera.position);
         requestAnimationFrame(this.animate);
         this.controls.update();
+        this.stats.update();
     }
 
 }

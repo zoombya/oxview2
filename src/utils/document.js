@@ -8,10 +8,13 @@ class oxDocument extends THREE.Group{
     constructor(){
         super();
         this.app = new App();
-        //this.loadConf('./demo/init.top','./demo/relaxed.dat');
-        //this.loadConf("./demo/snubCube.top", "./demo/snubCube.dat");
-        //this.loadConf('./demo/tetDimer.top','./demo/tetDimer.dat');
-        this.loadConf('./demo/square.top','./demo/square.dat');
+
+        //for(let i = 0; i<10; i++){
+            //this.loadConf('./demo/init.top','./demo/relaxed.dat');
+             //this.loadConf("./demo/snubCube.top", "./demo/snubCube.dat");
+            this.loadConf('./demo/tetDimer.top','./demo/tetDimer.dat');
+            //this.loadConf('./demo/square.top','./demo/square.dat');
+        //}
         //this.add(this.addSpheres(2000));
         this.app.scene.add(this);
     }
@@ -33,9 +36,12 @@ class oxDocument extends THREE.Group{
 
         material.depthTest = true
         material.depthWrite = true
-        material.metalness = 5;
-        //const material = new THREE.MeshPhongMaterial();
+        
+        
+        //material.metalness = 5;
 
+        //const material = new THREE.MeshLambertMaterial();
+        
         // load the configuration file
         // create a web worker to parse the configuration file
         let particle_count, stand_count, strand_ids, nuc_ids;
@@ -47,8 +53,9 @@ class oxDocument extends THREE.Group{
             const { coordinates } = event.data;
 
            
-            const bb_geometry = new THREE.SphereGeometry(.2,10,10);
+            const bb_geometry = new THREE.SphereGeometry(.2,14,14);
             const bbSpheres = new THREE.InstancedMesh(bb_geometry, material, particle_count);
+            
             
             const nucGeometry = new THREE.SphereGeometry(.3,10,10);
             nucGeometry.scale(0.7, 0.3, 0.7)
