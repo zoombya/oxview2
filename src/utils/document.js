@@ -55,18 +55,20 @@ class oxDocument extends THREE.Group{
            
             const bb_geometry = new THREE.SphereGeometry(.2,14,14);
             const bbSpheres = new THREE.InstancedMesh(bb_geometry, material, particle_count);
-            
+            bbSpheres.document = this;
             
             const nucGeometry = new THREE.SphereGeometry(.3,10,10);
             nucGeometry.scale(0.7, 0.3, 0.7)
             const nucSpheres = new THREE.InstancedMesh(nucGeometry, material, particle_count);
-            
+            nucSpheres.document = this;
+
             const conGeometry = new THREE.CylinderGeometry(.1,.1, 0.8147053, 8);
             const conCylinders = new THREE.InstancedMesh(conGeometry, material, particle_count);
+            conCylinders.document = this;
 
             const bbconGeometry = new THREE.CylinderGeometry(0.13, 0.05, 1, 8);
             const bbCylinders = new THREE.InstancedMesh(bbconGeometry, material, particle_count);
-
+            bbCylinders.document = this;
         
             const dummy = new THREE.Object3D();
             const bbdummy = new THREE.Object3D();

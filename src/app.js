@@ -157,10 +157,27 @@ class App{
             console.log(instanceId);
 
             const mesh = intersection[ 0 ].object;
-            console.log(mesh);
-            mesh.setColorAt( instanceId, new THREE.Color( 0xff00ff ) );
-            mesh.instanceColor.needsUpdate = true;
+            
+            const doc = mesh.document;
+            console.log(doc);
+            //console.log(mesh);
+            
+            doc.children[0].setColorAt( instanceId, new THREE.Color( 0xff00ff ) );
+            doc.children[0].instanceColor.needsUpdate = true;
+            
+            doc.children[1].setColorAt( instanceId, new THREE.Color( 0xff00ff ) );
+            doc.children[1].instanceColor.needsUpdate = true;
+            
+            doc.children[2].setColorAt( instanceId, new THREE.Color( 0xff00ff ) );
+            doc.children[2].instanceColor.needsUpdate = true;
+            
+            doc.children[3].setColorAt( instanceId, new THREE.Color( 0xff00ff ) );
+            doc.children[3].instanceColor.needsUpdate = true;
+            
+
+
             this.render();
+            
             //mesh.setColorAt( instanceId, new THREE.Color( 0xff0000 ) );
             //mesh.getColorAt( instanceId, color );
 
