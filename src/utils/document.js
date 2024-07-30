@@ -9,9 +9,9 @@ class oxDocument extends THREE.Group{
     constructor(){
         super();
         this.app = new App();
-        this.loadOxViewConf('./demo/mark.oxview');
+        //this.loadOxViewConf('./demo/mark.oxview');
         this.loadOxViewConf('./demo/ico7560_colored.oxview');
-        this.loadOxViewConf('./demo/fish.oxview');
+        //this.loadOxViewConf('./demo/fish.oxview');
         
         //for(let i = 0; i<10; i++){
             //this.loadConf('./demo/init.top','./demo/relaxed.dat');
@@ -38,10 +38,6 @@ class oxDocument extends THREE.Group{
                 material.depthWrite = true;
                 let group = new THREE.Group();
                 this.add(group);
-                let offset = new THREE.Vector3(Math.random() * 500 /4 ,
-                                               Math.random() * 500 /4, 
-                                               Math.random() * 500 /4);
-
                 strands.forEach(strand =>{
                     
                     const bb_geometry = new THREE.SphereGeometry(.7,16,16);
@@ -79,88 +75,10 @@ class oxDocument extends THREE.Group{
                         
                         bbSpheres.setColorAt(i, new THREE.Color(monomer.color));
                         group.add(bbSpheres);
-                        group.position.copy(offset);
-
                     });
                     this.app.render();
-
-                    console.log(
-                         strand.monomers
-                    )
-                    
-
                 });
-
-
-                let last_p1 = new THREE.Vector3(213.74993896484375, 8.56768798828125, -7.344879150390625);
-                let last_p2 = new THREE.Vector3(-210.4912109375, 22.48321533203125, 0.706085205078125);
-                const radius = 586.9922517022775;
-                let p2a3 = new THREE.Vector3(-0.9727861493636835, -0.09426861223300842,  0.21166137189822853);
-                //let p1a3 = new THREE.Vector3(0.887673862010848,0.4429008717604902,-0.1259917953540778);
-                let p1a3 = new THREE.Vector3( 0.744027565868753, 0.23860691126012945,  -0.6240911176473506)
-
-                const geometry = new THREE.SphereGeometry(radius, 128, 128);
-                const bMaterial  = new THREE.MeshPhysicalMaterial({
-                    color: 0x550055,
-                    metalness: 0.1,
-                    roughness: 0,
-                    //transmission: 1,
-                    thickness: 0.5,
-                    clearcoat: 1,
-                    clearcoatRoughness: 0,
-                    reflectivity: 0.5,
-                    //envMapIntensity: 1,
-                    ior: 1.5,
-                    specularIntensity: 1,
-                    specularColor: 0xffffff,
-                  });
-                  //bMaterial.transparent = true;
-                  //bMaterial.opacity = 0.5;
-
-                
-
-                const bead = new THREE.Mesh(geometry, bMaterial);
-                bead.position.copy(last_p2);
-                bead.position.add(p2a3.clone().multiplyScalar(radius));
-
-                const bbead = new THREE.Mesh(geometry, bMaterial);
-                bbead.position.copy(last_p1);
-                bbead.position.add(p1a3.clone().multiplyScalar(radius));
-                bbead.position.x -= 10
-                bbead.position.y -= 10
-                bbead.position.z -= 10
-                
-                //this.add(bbead)
-
-
-                // add a point light in the center of the sphere
-               // const light = new THREE.PointLight(0xffffff, 1, 1000);
-
-                
-                
-
-                //console.log(light.position);
-
-
-                //light.position.set(0, 0, 0);
-                //bead.add(light);
-                // add a point light in the center of the sphere
-                //const light2 = new THREE.PointLight(0xffffff, 1, 1000);
-                    
-
-
-
-                bMaterial.color = new THREE.Color(0xA0A0A0);
-                //this.add(bead );
-              
                 this.app.render();
-
-                //this.scale.set(0.3, 0.3, 0.3);
-
-
-                //this.add(bead2);
-
-
             })
 
 

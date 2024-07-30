@@ -7,6 +7,8 @@ import { EffectComposer, RenderPass, SMAAEffect, EffectPass } from "postprocessi
 import {SMAAPreset, OutlineEffect} from 'postprocessing';
 import {AxisArrows} from './utils/axisArraows.js';
 import Stats from '../node_modules/stats-gl';
+import { TransformControls } from '../node_modules/three/examples/jsm/controls/TransformControls.js';
+
 
 class App{
     constructor(){
@@ -34,7 +36,7 @@ class App{
         // this.scene.environmentMap = environment;
 
 
-        this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight,0.1,10000);
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight,0.1,10000);
         this.camera.position.set(100,0,0);
 
         this.renderer = new THREE.WebGLRenderer ({
@@ -134,14 +136,11 @@ class App{
         //   });
                 
         //add controls
-        //this.controls = new TrackballControls(this.camera, this.renderer.domElement);
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls = new TrackballControls(this.camera, this.renderer.domElement);
+        //this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.addEventListener('change', (event)=>{
-            
             //make the light follow the camera
             //this.light.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
-
-
             //this.light.position.copy(this.camera.position);
             this.render();
         });
@@ -151,16 +150,11 @@ class App{
         this.controls.rotateSpeed = .5;
         this.controls.zoomSpeed = 1.; 
         this.controls.panSpeed = 2.0;
-        this.controls.noZoom = true;
-        this.controls.noPan = true;
-        this.controls.staticMoving = false;
+        //this.controls.noZoom = true;
+        //this.controls.noPan = true;
+        //this.controls.staticMoving = false;
         this.controls.dynamicDampingFactor = 0.1;
 
-        //constrain rotation
-        // this.controls.minPolarAngle = -Math.PI/4;
-        // this.controls.maxPolarAngle = Math.PI/4;
-        // this.controls.minAzimuthAngle = -Math.PI/4;
-        // this.controls.maxAzimuthAngle = Math.PI/4;
 
         //fix window resize
         window.addEventListener('resize', ()=>{
@@ -182,21 +176,12 @@ class App{
             // new oxDocument()
         ];
 
+        const tcontrols = new TransformControls(this.camera, this.renderer.domElement)
+        tcontrols.attach(this.documents[0]);
+        this.scene.add(tcontrols)
+
         //add axes helper
         this.scene.add(new AxisArrows());
-
-        // // add plane to reflect light
-        // const planeGeometry = new THREE.PlaneGeometry(1000, 1000);
-        // const planeMaterial = new THREE.MeshPhongMaterial({color: 0xffffff});
-        // planeMaterial.metallness = 0.8;
-        // planeMaterial.roughness = 0.2;
-        // const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-
-        // //plane.rotation.z= Math.PI/2;
-        // plane.position.z = -25*.85/2;
-        // plane.receiveShadow = true;
-        // this.scene.add(plane);
-
 
         //render once
         this.render();
