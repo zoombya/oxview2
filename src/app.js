@@ -9,6 +9,11 @@ import {AxisArrows} from './utils/axisArraows.js';
 import Stats from '../node_modules/stats-gl';
 import { TransformControls } from '../node_modules/three/examples/jsm/controls/TransformControls.js';
 
+// global variables for transform controls and controls
+// just to get around the bound events 
+let transformControls = null;
+let controls = null;
+let docs = null;
 
 class App{
     constructor(){
@@ -125,11 +130,12 @@ class App{
         window.addEventListener('keydown', function(event) {
            switch (event.code) {
             case 'KeyT':
-                transformControls.setMode("translate");
+                    transformControls.setMode("translate");
                 break;
             case 'KeyR':
-                transformControls.setMode("rotate");
+                    transformControls.setMode("rotate");
                 break;
+            
            }
         });
                 
@@ -142,7 +148,7 @@ class App{
         });
 
         //  dirty hack to make controls available for transform controls
-        const controls = this.controls;
+        controls = this.controls;
         this.controls.daming = 0.2;
 
 
@@ -163,14 +169,16 @@ class App{
         //populate scene with random demo stuff
         this.documents = [
             new oxDocument(),
-            // new oxDocument()
         ];
+        // just again a dirty hack to make the documents available for the keybinding etc.
+        docs = this.documents;
 
         this.transformControl = new TransformControls(this.camera, this.renderer.domElement)
         this.transformControl.attach(this.documents[0]);
+        
         this.scene.add(this.transformControl)
         //dirty hack to make the transform control work in the keybinding
-        const transformControls = this.transformControl;
+        transformControls = this.transformControl;
 
         this.transformControl.addEventListener( 'change', this.render );
 		this.transformControl.addEventListener( 'dragging-changed', function ( event ) {
