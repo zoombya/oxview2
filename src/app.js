@@ -1,4 +1,4 @@
-import {TrackballControls} from '../node_modules/three/examples/jsm/controls/TrackballControls.js';
+//import {TrackballControls} from '../node_modules/three/examples/jsm/controls/TrackballControls.js';
 import {OrbitControls} from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
 
 import {oxDocument} from './utils/document.js';
@@ -36,7 +36,7 @@ class App{
         // this.scene.environmentMap = environment;
 
 
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight,0.1,10000);
+        this.camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight,1,10000);
         this.camera.position.set(100,0,0);
 
         this.renderer = new THREE.WebGLRenderer ({
@@ -62,7 +62,7 @@ class App{
 			horizontal: false
 		} );
 		this.stats.init( this.renderer );
-		//document.body.appendChild( this.stats.dom );
+		document.body.appendChild( this.stats.dom );
 		this.stats.dom.style.position = 'absolute';
 
 
@@ -121,39 +121,29 @@ class App{
         this.scene.add(this.light)
         this.scene.add(new THREE.AmbientLight(0xffffff, 0.3));
 
-        // function saveScreenshot() {
-        //     const imgData = renderer.domElement.toDataURL("image/png");
-        //     const link = document.createElement('a');
-        //     link.href = imgData;
-        //     link.download = 'screenshot.png';
-        //     link.click();
-        //   }
           
-        //   window.addEventListener('keydown', function(event) {
-        //     if (event.key === 'p' || event.key === 'P') {
-        //       saveScreenshot();
-        //     }
-        //   });
+        window.addEventListener('keydown', function(event) {
+           switch (event.code) {
+            case 'KeyT':
+                transformControls.setMode("translate");
+                break;
+            case 'KeyR':
+                transformControls.setMode("rotate");
+                break;
+           }
+        });
                 
         //add controls
-        this.controls = new TrackballControls(this.camera, this.renderer.domElement);
-        //this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        //this.controls = new TrackballControls(this.camera, this.renderer.domElement);
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.addEventListener('change', (event)=>{
             //make the light follow the camera
-            //this.light.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
-            //this.light.position.copy(this.camera.position);
             this.render();
         });
 
-        // interestingly oxviews 1.0 parameters are smaller than these
-        // not sure why , but these feel better
-        this.controls.rotateSpeed = .5;
-        this.controls.zoomSpeed = 1.; 
-        this.controls.panSpeed = 2.0;
-        //this.controls.noZoom = true;
-        //this.controls.noPan = true;
-        //this.controls.staticMoving = false;
-        this.controls.dynamicDampingFactor = 0.1;
+        //  dirty hack to make controls available for transform controls
+        const controls = this.controls;
+        this.controls.daming = 0.2;
 
 
         //fix window resize
@@ -176,9 +166,17 @@ class App{
             // new oxDocument()
         ];
 
-        const tcontrols = new TransformControls(this.camera, this.renderer.domElement)
-        tcontrols.attach(this.documents[0]);
-        this.scene.add(tcontrols)
+        this.transformControl = new TransformControls(this.camera, this.renderer.domElement)
+        this.transformControl.attach(this.documents[0]);
+        this.scene.add(this.transformControl)
+        //dirty hack to make the transform control work in the keybinding
+        const transformControls = this.transformControl;
+
+        this.transformControl.addEventListener( 'change', this.render );
+		this.transformControl.addEventListener( 'dragging-changed', function ( event ) {
+            controls.enabled = ! event.value;
+		} );
+		
 
         //add axes helper
         this.scene.add(new AxisArrows());
