@@ -44,6 +44,7 @@ class App{
         this.camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight,1,10000);
         this.camera.position.set(100,0,0);
 
+
         this.renderer = new THREE.WebGLRenderer ({
             canvas: document.querySelector('#canvas'),
             powerPreference: "high-performance",
@@ -57,8 +58,6 @@ class App{
 
         this.renderer.setPixelRatio( window.devicePixelRatio);
         this.renderer.setSize( window.innerWidth, window.innerHeight);
-        // this.renderer.shadowMap.enabled = true;
-        // this.renderer.shadowMap.type = THREE.VSMShadowMap;
 
 
         // stats
@@ -71,11 +70,7 @@ class App{
 		this.stats.dom.style.position = 'absolute';
 
 
-        //make camera view exportable on key press as json 
         
-
-        //this.camera.position.setZ(30);
-
         //add a render pass 
         // N8AOPass replaces RenderPass
         this.n8aopass = new N8AOPostPass(
@@ -86,7 +81,7 @@ class App{
             );
 
         //set the quality mode to low
-        this.n8aopass.setQualityMode("Ultra");
+        this.n8aopass.setQualityMode("High");
         this.n8aopass.configuration.intensity = 8;
         //this.n8aopass.configuration.renderMode = 1;
 
@@ -95,11 +90,8 @@ class App{
             whereas N8AOPass replaces the render pass. Everything else is identical. */
         this.composer.addPass(new RenderPass(this.scene, this.camera));
         this.composer.addPass(this.n8aopass);
-        this.composer.addPass(new EffectPass(this.camera, new SMAAEffect(SMAAPreset.ULTRA)));
-        //add a light
-        //this.light = new THREE.PointLight(0xffffff, 1);
-        //this.light.position.copy(this.camera.position);
-        //this.scene.add(this.light);
+        this.composer.addPass(new EffectPass(this.camera, new SMAAEffect(SMAAPreset.HIGH)));
+ 
 
 
         //bind render function to this
@@ -107,17 +99,6 @@ class App{
         //bind animate function to this
         this.animate = this.animate.bind(this);
         
-        // this.light = new THREE.PointLight(0xffffff, 1, 1000);
-        // this.light.position.set(...this.camera.position);
-        // this.scene.add(this.light);
-
-        //this.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-        
-        this.light = new THREE.PointLight(0xffffff, 1, 1000);
-        this.light.position.set(0, 0, 0);
-        this.light.castShadow = true;
-        this.light.position.set(50, -50, 50);
-        this.scene.add(this.light)
 
         this.light = new THREE.PointLight(0xffffff, 1, 1000);
         this.light.position.set(0, 0, 0);

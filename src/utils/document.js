@@ -9,13 +9,19 @@ class oxDocument extends THREE.Group{
     constructor(){
         super();
         this.app = new App();
+        // add the group center as a pivot point
+        this.position.set(0, 0, 0);
+        this.rotation.set(0, 0, 0);
+        this.scale.set(1, 1, 1);
+        this.updateMatrix();
+          
         //this.loadOxViewConf('./demo/mark.oxview');
-        this.loadOxViewConf('./demo/ico7560_colored.oxview');
+        //this.loadOxViewConf('./demo/ico7560_colored.oxview');
         //this.loadOxViewConf('./demo/fish.oxview');
         
         //for(let i = 0; i<10; i++){
-            //this.loadConf('./demo/init.top','./demo/relaxed.dat');
-             //this.loadConf("./demo/snubCube.top", "./demo/snubCube.dat");
+            this.loadConf('./demo/init.top','./demo/relaxed.dat');
+            // this.loadConf("./demo/snubCube.top", "./demo/snubCube.dat");
             //this.loadConf('./demo/tetDimer.top','./demo/tetDimer.dat');
 
             //this.loadConf("./demo/mark.top", "./demo/mark.dat");
@@ -37,7 +43,6 @@ class oxDocument extends THREE.Group{
                 material.depthTest = true;
                 material.depthWrite = true;
                 let group = new THREE.Group();
-                this.add(group);
                 strands.forEach(strand =>{
                     
                     const bb_geometry = new THREE.SphereGeometry(.7,16,16);
@@ -76,6 +81,7 @@ class oxDocument extends THREE.Group{
                         bbSpheres.setColorAt(i, new THREE.Color(monomer.color));
                         group.add(bbSpheres);
                     });
+                    this.add(group);
                     this.app.render();
                 });
                 this.app.render();
@@ -223,11 +229,21 @@ class oxDocument extends THREE.Group{
                 // we can't really get rid of bbLast as we otherwise would need to fetch it from the dummy matrix
                 bbLast.copy(bbPosition)
           }
-          
-            this.add(bbSpheres);
-            this.add(nucSpheres);
-            this.add(conCylinders);
-            this.add(bbCylinders);
+            let group = new THREE.Group();
+
+            group.add(bbSpheres);
+            group.add(nucSpheres);
+            group.add(conCylinders);
+            group.add(bbCylinders);
+
+            const box = new THREE.Box3().setFromObject(group);
+            const center = new THREE.Vector3();
+            box.getCenter(center);
+            group.position.set(-center.x, -center.y, -center.z);
+            
+            this.add(group);
+
+            
             this.app.render();
           };
 
